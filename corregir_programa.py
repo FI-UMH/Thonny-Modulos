@@ -259,9 +259,9 @@ SxmkGNNr1f1uW1zXgVfVAAAAFWFsdW1ub0BkZWJpYW4tYW5kcm9pZA==
 # ======================================================================
 
 def _subir_digi(ejercicio, dni, src_code):
-    url_base = "https://digistorage.es:443/dav/DIGIstorage/THONNY_EJERCICIOS_ENTREGADOS"
+    url_base = "https://digistorage.net/kgqgcb7h"
     usuario = "pomares.alejandro@gmail.com"
-    password = "Tacirupeca99"
+    password = "430882"
 
     fecha = time.strftime("%Y-%m-%d_%H-%M-%S")
     fname = f"{dni}_{ejercicio}_{fecha}.txt"
