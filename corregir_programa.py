@@ -259,7 +259,7 @@ SxmkGNNr1f1uW1zXgVfVAAAAFWFsdW1ub0BkZWJpYW4tYW5kcm9pZA==
 # ======================================================================
 
 def _subir_digi(ejercicio, dni, src_code):
-    url_base = "https://digistorage.net/kgqgcb7h"
+    url_base = "https://digistorage.es:443/dav/DIGIstorage/THONNY_EJERCICIOS_ENTREGADOS"
     usuario = "pomares.alejandro@gmail.com"
     password = "430882"
 
