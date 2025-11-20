@@ -184,7 +184,6 @@ def configurar(DATOS_LOADED):
     _config_cabecera()
     _config_vistas()
     _config_guardar_antes()
-    _config_linea_menu()
 
     # 2. Menús
     def crear_menus():
