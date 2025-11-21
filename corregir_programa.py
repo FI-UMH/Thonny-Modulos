@@ -205,11 +205,7 @@ def _subir_ssh(ejercicio, dni, src_code):
     SSH_PORT = 8801
     SSH_USER = 'alumno'
     SSH_KEY = """-----BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACCkE9WXLdXwYISozrCjeRnijUsZpBjTa9X9bltc14FX1QAAAJg14Fy4NeBc
-uAAAAAtzc2gtZWQyNTUxOQAAACCkE9WXLdXwYISozrCjeRnijUsZpBjTa9X9bltc14FX1Q
-AAAEDIoS5Dm5C1r3ITdmGL3n2lZHBoZ9RK/5M9Y+W6bxfK2aQT1Zct1fBghKjOsKN5GeKN
-SxmkGNNr1f1uW1zXgVfVAAAAFWFsdW1ub0BkZWJpYW4tYW5kcm9pZA==
+
 -----END OPENSSH PRIVATE KEY-----"""
 
     import io
@@ -260,7 +256,7 @@ SxmkGNNr1f1uW1zXgVfVAAAAFWFsdW1ub0BkZWJpYW4tYW5kcm9pZA==
 
 def _subir_digi(ejercicio, dni, src_code):
     url_base = "https://digistorage.es:443/dav/DIGIstorage/THONNY_EJERCICIOS_ENTREGADOS"
-    usuario = "pomares.alejandro@gmail.com"
+    usuario = "pepe@gmail.com"
     password = "430882"
 
     fecha = time.strftime("%Y-%m-%d_%H-%M-%S")
