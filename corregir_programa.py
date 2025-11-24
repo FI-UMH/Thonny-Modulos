@@ -13,6 +13,7 @@ from tkinter import messagebox, Toplevel, Text, Scrollbar
 from collections import Counter
 import requests
 import paramiko
+import socket, uuid
 
 
 # ======================================================================
@@ -197,64 +198,46 @@ def _run_single_test(src_code: str, test: dict) -> dict:
 
 
 # ======================================================================
-#                         SUBIDA SSH
+#                         SUBIR EJERCICIOS
 # ======================================================================
 
-def _subir_ssh(ejercicio, dni, src_code):
-    SSH_HOST = 'labatc.umh.es'
-    SSH_PORT = 8801
-    SSH_USER = 'alumno'
-    SSH_KEY = """-----BEGIN OPENSSH PRIVATE KEY-----
-
------END OPENSSH PRIVATE KEY-----"""
-
-    import io
-    key_stream = io.StringIO(SSH_KEY)
-    pkey = paramiko.Ed25519Key.from_private_key(key_stream)
-
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
+def _subir_ejercicios(ejercicio, dni, src_code):
+    # --- Hostname ---
+    hostname = socket.gethostname()
+    # --- IP local fiable ---
     try:
-        ssh.connect(SSH_HOST, port=SSH_PORT, username=SSH_USER, pkey=pkey)
-    except Exception as e:
-        raise RuntimeError(f"SSH error: {e}")
-
-    sftp = ssh.open_sftp()
-    try:
-        home = f"/home/{SSH_USER}"
-        d = f"{home}/entregas"
-        try:
-            sftp.listdir(d)
-        except IOError:
-            sftp.mkdir(d)
-
-        fecha = time.strftime("%Y-%m-%d_%H-%M-%S")
-        fname = f"{dni}_{ejercicio}_{fecha}.txt"
-        rpath = f"{d}/{fname}"
-
-        content = (
-            f"EJERCICIO: {ejercicio}\nDNI: {dni}\nTIMESTAMP: {fecha}\n\nCODIGO:\n{src_code}\n"
-        ).encode("utf-8")
-
-        with sftp.open(rpath, "wb") as f:
-            f.write(content)
-            f.flush()
-
-        return rpath
-
-    finally:
-        try: sftp.close()
-        except: pass
-        try: ssh.close()
-        except: pass
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip_local = s.getsockname()[0]
+        s.close()
+    except:
+        ip_local = None
+    # --- MAC principal ---
+    mac_raw = uuid.getnode()
+    mac = ":".join(f"{(mac_raw >> shift) & 0xff:02x}" for shift in range(40, -1, -8))
 
 
-# ======================================================================
-#                         SUBIDA DIGI WEBDAV
-# ======================================================================
+    url_fi = "https://script.google.com/macros/s/AKfycby3wCtvhy2sqLmp9TAl5aEQ4zHTceMAxwA_4M2HCjFJQpvxWmstEoRa5NohH0Re2eQa/exec"
+    url_pomares = "https://script.google.com/macros/s/AKfycbzngWPpSA7pq92WFWQnNdpOEtKWcOUPvgNs_bSwM3TcIsnNBoIwPyM9M183TPXNa7eGOg/exec"
 
-def _subir_digi(ejercicio, dni, src_code):
+    data = {
+        "key": "Thonny#fi",  
+        "ordenador": hostname,
+        "ip": ip_local,
+        "mac":mac,
+        "dni": dni,
+        "ejercicio": ejercicio,
+        "fuente": src_code
+    }
+
+    url_fi = "https://script.google.com/macros/s/AKfycby3wCtvhy2sqLmp9TAl5aEQ4zHTceMAxwA_4M2HCjFJQpvxWmstEoRa5NohH0Re2eQa/exec"
+    url_pomares = "https://script.google.com/macros/s/AKfycbxwDPaWyBATk_xRuxnGLEtPhpULa3WJHVidj7_7ttYhdYwmiVVI1wJxwkUDrQespcku-A/exec"
+
+    respuesta_fi = requests.post(url_fi, data=data)
+    respuesta_pomares = requests.post(url_pomares, data=data)
+
+    return respuesta_pomares.text
+''' 
     url_base = "https://digistorage.es:443/dav/DIGIstorage/THONNY_EJERCICIOS_ENTREGADOS"
     usuario = "pepe@gmail.com"
     password = "430882"
@@ -272,7 +255,7 @@ def _subir_digi(ejercicio, dni, src_code):
 
     if r.status_code not in (200, 201, 204):
         raise RuntimeError(f"Error DIGI: {r.status_code}: {r.text}")
-
+'''
 
 # ======================================================================
 #                            FUNCIÓN PRINCIPAL
@@ -339,20 +322,11 @@ def run(DATOS_LOADED):
     messagebox.showinfo("Corregir programa", "✅ Todos los tests superados.")
 
     # ------------------------------------------------------------------
-    #                          SUBIDA SSH
+    #                          SUBIDA EJERCICIOS
     # ------------------------------------------------------------------
     try:
-        remote_path = _subir_ssh(ejercicio, dni, src)
-        messagebox.showinfo("Entrega SSH", f"Subido correctamente a:\n{remote_path}")
+        respuesta _subir_ejercicios(ejercicio, dni, src)
+        messagebox.showinfo("Entrega ejercicios", respuesta)
     except Exception as e:
-        messagebox.showerror("SSH", str(e))
+        messagebox.showerror("Error en la entrega de ejercicios", str(e))
         return
-
-    # ------------------------------------------------------------------
-    #                          SUBIDA DIGI
-    # ------------------------------------------------------------------
-    try:
-        _subir_digi(ejercicio, dni, src)
-        messagebox.showinfo("DIGI", "Subido correctamente a DIGI WebDAV.")
-    except Exception as e:
-        messagebox.showerror("DIGI", str(e))
