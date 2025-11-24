@@ -70,25 +70,25 @@ _HDR_RE = re.compile(
 
 def _extraer_datos_cabecera(src: str):
     """
-    Extrae dni, nombre, grado, ejercicio a partir del bloque inicial triple-comillas.
+    Extrae DNI y EJERCICIO de la cabecera simplificada.
+    Formato esperado:
+    # DNI = 12345678X
+    # EJERCICIO = p001
     """
-    dni = nombre = grado = ejercicio = None
-    m = _HDR_RE.search(src or "")
-    if not m:
-        return dni, nombre, grado, ejercicio
+    dni = ejercicio = None
 
-    body = m.group("body")
+    # Buscar líneas tipo "# DNI = xxxx"
+    m_dni = re.search(r"^\s*#\s*DNI\s*=\s*(.+)", src, re.MULTILINE | re.IGNORECASE)
+    if m_dni:
+        dni = m_dni.group(1).strip()
 
-    def grab(pat):
-        mm = re.search(pat, body, re.IGNORECASE)
-        return mm.group(1).strip() if mm else None
+    # Buscar líneas tipo "# EJERCICIO = p001"
+    m_ejer = re.search(r"^\s*#\s*EJERCICIO\s*=\s*(.+)", src, re.MULTILINE | re.IGNORECASE)
+    if m_ejer:
+        ejercicio = m_ejer.group(1).strip()
 
-    dni = grab(r"DNI\s*:\s*(.+)")
-    nombre = grab(r"NOMBRE\s*:\s*(.+)")
-    grado = grab(r"GRADO\s*:\s*(.+)")
-    ejercicio = grab(r"EJERCICIO\s*:\s*(.+)")
+    return dni, ejercicio
 
-    return dni, nombre, grado, ejercicio
 
 
 def mostrar_error_scroll(titulo, mensaje):
@@ -267,11 +267,11 @@ def run(DATOS_LOADED):
         messagebox.showerror("Corregir programa", "No pude leer el código del editor.")
         return
 
-    dni, nombre, grado, ejercicio = _extraer_datos_cabecera(src)
-    if not all([dni, nombre, grado, ejercicio]):
+    dni, ejercicio = _extraer_datos_cabecera(src)
+    if not all([dni, ejercicio]):
         messagebox.showerror(
             "Corregir programa",
-            "No se pudieron extraer DNI, NOMBRE, GRADO y EJERCICIO de la cabecera."
+            "No se pudieron extraer DNI y EJERCICIO de la cabecera."
         )
         return
 
