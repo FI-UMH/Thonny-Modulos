@@ -325,7 +325,7 @@ def run(DATOS_LOADED):
     #                          SUBIDA EJERCICIOS
     # ------------------------------------------------------------------
     try:
-        respuesta _subir_ejercicios(ejercicio, dni, src)
+        respuesta = _subir_ejercicios(ejercicio, dni, src)
         messagebox.showinfo("Entrega ejercicios", respuesta)
     except Exception as e:
         messagebox.showerror("Error en la entrega de ejercicios", str(e))
