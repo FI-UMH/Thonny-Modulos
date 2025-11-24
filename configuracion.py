@@ -34,13 +34,10 @@ BASE_MOD_URL = "https://raw.githubusercontent.com/FI-UMH/Thonny-Modulos/main/"
 def _config_cabecera():
     from thonny.editors import Editor
 
-    CABECERA = """'''
-DNI        : 
-NOMBRE     : 
-GRADO      : 
-EJERCICIO  : 
-'''
-"""
+   CABECERA = (
+    "# DNI = \n"
+    "# EJERCICIO = \n\n"
+   )
 
     _original_init = Editor.__init__
 
