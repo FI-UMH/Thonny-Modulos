@@ -500,11 +500,7 @@ def corregir_programa(DATOS_LOADED):
 
         Label(
             frame,
-            text=(
-                "El ejercicio se está enviando\n"
-                "al servidor en segundo plano.\n\n"
-                "Puedes continuar trabajando."
-            ),
+            text= "Ejercicio CORRECTO",
             font=fuente,
             justify="center",
         ).pack(pady=(0, 20))
