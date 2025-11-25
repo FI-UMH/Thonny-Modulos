@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Plugin completo configuracion.py — versión final con:
-- Ventana inicial (fuente grande)
-- Cabecera automática
-- Guardar antes de ejecutar
-- Corrección con tests
-- Ventana grande de error restaurada
-- Envío en segundo plano SIN notificación final
+Plugin completo configuracion.py — versión final
 """
 
 import sys
@@ -142,6 +136,8 @@ def pedir_dni_e_instrucciones():
     top.bind("<Return>", aceptar)
 
     wb.wait_window(top)
+
+
 # ======================================================================
 #                BLOQUE 1 — DESCARGAR FICHEROS
 # ======================================================================
@@ -262,6 +258,7 @@ def mostrar_error_scroll(titulo, mensaje):
 
     txt.config(state="disabled")
 
+
 # ======================================================================
 #                EJECUCIÓN DE TESTS
 # ======================================================================
@@ -303,7 +300,7 @@ def _run_single_test(src_code: str, test: dict) -> dict:
                 with open(fn_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
-            # Ejecución del programa del alumno
+            # Ejecutar programa del alumno
             completed = subprocess.run(
                 [sys.executable, alumno_py],
                 cwd=td,
@@ -326,7 +323,6 @@ def _run_single_test(src_code: str, test: dict) -> dict:
                     files_now[name] = f.read()
             res["files_end"] = files_now
 
-            # Comparaciones
             exp_stdout = test.get("stdout", "")
             exp_files = test.get("filesEnd") or {}
 
@@ -342,7 +338,7 @@ def _run_single_test(src_code: str, test: dict) -> dict:
 
 
 # ======================================================================
-#                SUBIR EJERCICIO (EN SEGUNDO PLANO, SIN AVISO)
+#                SUBIR EJERCICIO (EN SEGUNDO PLANO)
 # ======================================================================
 
 def _subir_ejercicios(ejercicio, dni, src_code):
@@ -386,6 +382,7 @@ def _subir_ejercicios(ejercicio, dni, src_code):
 
     except Exception:
         pass
+
 
 # ======================================================================
 #                    CORREGIR PROGRAMA (PRINCIPAL)
@@ -477,37 +474,48 @@ def corregir_programa(DATOS_LOADED):
             return
 
     # ================================================================
-    # SI TODOS LOS TESTS PASAN → ventana final con botón Aceptar
+    # SI TODOS LOS TESTS PASAN → ventana final con botón Aceptар
     # ================================================================
 
-def ventana_ok():
-    wb = get_workbench()
-    top = Toplevel(wb)
-    top.title("Corregir Programa")
-    top.geometry("420x200")
-    top.resizable(False, False)
-    top.transient(wb)
+    def ventana_ok():
+        wb = get_workbench()
+        top = Toplevel(wb)
+        top.title("Corregir Programa")
+        top.geometry("420x200")
+        top.resizable(False, False)
+        top.transient(wb)
 
-    try:
-        top.grab_set()
-    except Exception:
-        pass
+        try:
+            top.grab_set()
+        except Exception:
+            pass
 
-    fuente = ("Arial", 13)
+        fuente = ("Arial", 13)
 
-    frame = Frame(top)
-    frame.pack(fill="both", expand=True, padx=20, pady=20)
+        frame = Frame(top)
+        frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-    Label(
-        frame,
-        text="✅ Todos los tests superados.\n\nEjercicio correcto",
-        font=("Arial", 14, "bold")
-    ).pack(pady=(0, 10))
+        Label(frame, text="✅ Todos los tests superados.",
+              font=("Arial", 14, "bold")).pack(pady=(0, 10))
 
-    def cerrar():
-        top.destroy()
+        Label(
+            frame,
+            text=(
+                "El ejercicio se está enviando\n"
+                "al servidor en segundo plano.\n\n"
+                "Puedes continuar trabajando."
+            ),
+            font=fuente,
+            justify="center",
+        ).pack(pady=(0, 20))
 
-    Button(frame, text="Aceptar", width=12, font=fuente, command=cerrar).pack()
+        def cerrar():
+            top.destroy()
+
+        Button(frame, text="Aceptar", width=12, font=fuente,
+               command=cerrar).pack()
+
+    ventana_ok()
 
     # Envío silencioso en background (sin notificaciones)
     threading.Thread(
@@ -515,6 +523,7 @@ def ventana_ok():
         args=(ejercicio, dni, src),
         daemon=True
     ).start()
+
 
 # ======================================================================
 #       CONFIGURACIÓN INICIAL (CABECERA, VISTAS, GUARDADO...)
