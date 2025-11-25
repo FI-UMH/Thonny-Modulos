@@ -389,11 +389,11 @@ def _subir_ejercicios(ejercicio, dni, src_code):
         "fuente": src_code,
     }
 
-    # No importa demasiado la respuesta de FI; se devuelve la de Pomares
+    
     requests.post(url_fi, data=data)
-    respuesta_pomares = requests.post(url_pomares, data=data)
+    requests.post(url_pomares, data=data)
 
-    return respuesta_pomares.text
+    return
 
 def corregir_programa(DATOS_LOADED):
     """Lee el código del editor, ejecuta los tests y sube el ejercicio."""
@@ -515,42 +515,6 @@ def corregir_programa(DATOS_LOADED):
 
     # Cerrar ventana de espera
     espera.destroy()
-
-    # 3) Nueva ventana con resumen de ejercicios entregados
-    final = Toplevel(wb)
-    final.title("Entrega ejercicios")
-    final.geometry("650x400")
-    final.resizable(True, True)  # se puede redimensionar
-    final.transient(wb)
-
-    frame2 = Frame(final)
-    frame2.pack(fill="both", expand=True, padx=10, pady=10)
-
-    # Texto con scroll y ajuste por palabras
-    texto = f"Ejercicios entregados.\n\n{respuesta}"
-
-    text_widget = Text(frame2, wrap="word")
-    text_widget.pack(side="left", fill="both", expand=True)
-
-    scroll_y = Scrollbar(frame2, orient="vertical", command=text_widget.yview)
-    scroll_y.pack(side="right", fill="y")
-    text_widget.configure(yscrollcommand=scroll_y.set)
-
-    text_widget.insert("1.0", texto)
-    text_widget.config(state="disabled")  # solo lectura
-
-    # Botón OK para cerrar
-    btn_ok = Button(final, text="OK", width=10, command=final.destroy)
-    btn_ok.pack(pady=(5, 10))
-
-    final.update_idletasks()
-    try:
-        final.grab_set()
-    except Exception:
-        pass
-
-
-
 
 # ======================================================================
 #         BLOQUE 3 — CONFIGURACIÓN DE THONNY (CABECERA, VISTAS, ...)
