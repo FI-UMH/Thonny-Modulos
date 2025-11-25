@@ -399,11 +399,41 @@ def corregir_programa(DATOS_LOADED):
             return
 
         if not result["ok_stdout"] or not result["ok_files"]:
-            messagebox.showerror(
-                "Corregir Programa",
-                f"El ejercicio no supera el test #{idx}.",
+            files_ini_text = "".join(
+                f"'{fn}':\n{content}\n"
+                for fn, content in (test.get("filesIni") or {}).items()
             )
+            files_end_text = "".join(
+                f"'{fn}':\n{content}\n"
+                for fn, content in (result.get("files_end") or {}).items()
+            )
+            files_exp_text = "".join(
+                f"'{fn}':\n{content}\n"
+                for fn, content in (test.get("filesEnd") or {}).items()
+            )
+
+            msg = (
+                "El ejercicio no supera el test\n \n"
+                "▶ CONTEXTO INICIAL\n"
+                "─────── Teclado ───────\n"
+                f"{test.get('stdin', '')}\n"
+                "─────── Ficheros ───────\n"
+                f"{files_ini_text}\n"
+                "▶ RESULTADO OBTENIDO\n"
+                "─────── Pantalla ───────\n"
+                f"{result['stdout_alumno']}\n"
+                "─────── Ficheros ───────\n"
+                f"{files_end_text}\n"
+                "▶ RESULTADO CORRECTO\n"
+                "─────── Pantalla ───────\n"
+                f"{test.get('stdout', '')}\n"
+                "─────── Ficheros ───────\n"
+                f"{files_exp_text}"
+            ).replace("\n\n", "\n")
+
+            mostrar_error_scroll("Corregir Programa", msg)
             return
+
 
     # ================================================================
     # TODOS LOS TESTS SUPERADOS → mensaje + envío en background
