@@ -367,75 +367,100 @@ def _subir_ejercicios(ejercicio, dni, src_code):
 
     return respuesta_pomares.text
 
-
 def corregir_programa(DATOS_LOADED):
     """Lee el código del editor, ejecuta los tests y sube el ejercicio."""
     src = _get_editor_text()
     if not src:
-        messagebox.showerror("Corregir programa", "No pude leer el código del editor.")
+        messagebox.showerror("Corregir Programa", "No pude leer el código del editor.")
         return
 
     dni, ejercicio = _extraer_datos_cabecera(src)
     if not dni or not ejercicio:
         messagebox.showerror(
-            "Corregir programa",
-            "No se pudieron extraer DNI y EJERCICIO de la cabecera.",
+            "Corregir Programa",
+            "No se pudieron extraer DNI y EJERCICIO de la cabecera."
         )
         return
 
     # Buscar tests.json en DATOS_LOADED
     key = None
     for k in DATOS_LOADED:
-        if k.lower() == "tests.json":
+        if k.lower() in ("tests.json", "test.json"):
             key = k
             break
 
     if not key:
-        messagebox.showerror("Corregir programa", "No encontré tests.json en memoria.")
+        messagebox.showerror("Corregir Programa", "No encontré tests.json en memoria.")
         return
 
     try:
-        tests_all = json.loads(_decode_bytes(DATOS_LOADED[key]))
+        all_tests = json.loads(_decode_bytes(DATOS_LOADED[key]))
     except Exception as e:
-        messagebox.showerror("Corregir programa", f"Error leyendo tests.json:\n{e}")
+        messagebox.showerror("Corregir Programa", f"Error leyendo {key}:\n{e}")
         return
 
-    if ejercicio not in tests_all:
+    if ejercicio not in all_tests:
         messagebox.showerror(
-            "Corregir programa",
-            f"No hay tests para el ejercicio {ejercicio}.",
+            "Corregir Programa",
+            f"No hay tests para el ejercicio {ejercicio}."
         )
         return
 
-    tests = tests_all[ejercicio]
+    tests = all_tests[ejercicio]
 
-    # Ejecutar tests
-    for i, t in enumerate(tests, start=1):
-        r = _run_single_test(src, t)
+    for idx, test in enumerate(tests, start=1):
+        result = _run_single_test(src, test)
 
-        if r["error"]:
-            messagebox.showerror("Error", f"Error en test #{i}:\n{r['error']}")
+        if result["error"]:
+            messagebox.showerror("Error", f"⚠️ Error en test #{idx}:\n{result['error']}")
             return
 
-        if not r["ok_stdout"] or not r["ok_files"]:
-            msg = (
-                f"El ejercicio NO supera el test #{i}\n\n"
-                "▶ RESULTADO OBTENIDO:\n"
-                f"{r['stdout_alumno']}\n\n"
-                "▶ RESULTADO ESPERADO:\n"
-                f"{t.get('stdout', '')}\n"
+        if not result["ok_stdout"] or not result["ok_files"]:
+            # Construir textos de ficheros (inicial, obtenido, esperado)
+            files_ini_text = "".join(
+                f"'{fn}':\n{content}\n"
+                for fn, content in (test.get("filesIni") or {}).items()
             )
-            mostrar_error_scroll("Corregir programa", msg)
+            files_end_text = "".join(
+                f"'{fn}':\n{content}\n"
+                for fn, content in (result.get("files_end") or {}).items()
+            )
+            files_exp_text = "".join(
+                f"'{fn}':\n{content}\n"
+                for fn, content in (test.get("filesEnd") or {}).items()
+            )
+
+            msg = (
+                "El ejercicio no supera el test\n \n"
+                "▶ CONTEXTO INICIAL\n"
+                "─────── Teclado ────────\n"
+                f"{test.get('stdin', '')}\n"
+                "─────── Ficheros ───────\n"
+                f"{files_ini_text}\n"
+                "▶ RESULTADO OBTENIDO\n"
+                "─────── Pantalla ───────\n"
+                f"{result['stdout_alumno']}\n"
+                "─────── Ficheros ───────\n"
+                f"{files_end_text}\n"
+                "▶ RESULTADO CORRECTO\n"
+                "─────── Pantalla ───────\n"
+                f"{test.get('stdout', '')}\n"
+                "─────── Ficheros ───────\n"
+                f"{files_exp_text}"
+            ).replace("\n\n", "\n")
+
+            mostrar_error_scroll("Corregir Programa", msg)
             return
 
-    messagebox.showinfo("Corregir programa", "✅ Todos los tests superados.")
+    messagebox.showinfo("Corregir Programa", "✅ Todos los tests superados.")
 
-    # Subida del ejercicio
+    # Subida del ejercicio (igual que antes)
     try:
         respuesta = _subir_ejercicios(ejercicio, dni, src)
         messagebox.showinfo("Entrega ejercicios", respuesta)
     except Exception as e:
         messagebox.showerror("Error en la entrega de ejercicios", str(e))
+
 
 
 # ======================================================================
