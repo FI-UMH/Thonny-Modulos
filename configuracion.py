@@ -83,7 +83,7 @@ def pedir_dni_e_instrucciones():
     wb = get_workbench()
     top = Toplevel(wb)
     top.title("Inicio del ejercicio")
-    top.geometry("520x320")
+    top.geometry("650x330")
     top.transient(wb)
     top.grab_set()
 
@@ -102,8 +102,7 @@ def pedir_dni_e_instrucciones():
     lbl_dni = Label(top, text="DNI del alumno:")
     lbl_dni.pack(anchor="w", padx=15)
 
-    entry_dni = Entry(top)
-    entry_dni.pack(fill="x", padx=15, pady=(0, 10))
+    entry_dni = Entry(top, width=12)
 
     def aceptar(event=None):
         dni = entry_dni.get().strip()
@@ -257,7 +256,8 @@ def mostrar_error_scroll(titulo, mensaje):
         "CONTEXTO INICIAL",
         "RESULTADO OBTENIDO",
         "RESULTADO CORRECTO",
-        "-",
+        "─────── Teclado ────────",
+        "─────── Ficheros ───────",
     )
 
     for palabra in titulos:
