@@ -500,20 +500,9 @@ def ventana_ok():
 
     Label(
         frame,
-        text="✅ Todos los tests superados.",
+        text="✅ Todos los tests superados.\n\nEjercicio correcto",
         font=("Arial", 14, "bold")
     ).pack(pady=(0, 10))
-
-    Label(
-        frame,
-        text=(
-            "El ejercicio se está enviando\n"
-            "al servidor en segundo plano.\n\n"
-            "Puedes continuar trabajando."
-        ),
-        font=fuente,
-        justify="center",
-    ).pack(pady=(0, 20))
 
     def cerrar():
         top.destroy()
