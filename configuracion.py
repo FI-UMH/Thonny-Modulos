@@ -90,8 +90,12 @@ def pedir_dni_e_instrucciones():
     top.geometry("700x360")
     top.resizable(False, False)
     top.transient(wb)
-    top.grab_set()
-
+    try:
+        top.grab_set()
+    except Exception:
+        pass
+    top.focus_set()
+ 
     frame = Frame(top)
     frame.pack(fill="both", expand=True, padx=20, pady=20)
 
