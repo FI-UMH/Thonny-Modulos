@@ -437,6 +437,7 @@ def corregir_programa(DATOS_LOADED):
 
     tests = all_tests[ejercicio]
 
+    # Ejecutar tests uno a uno
     for idx, test in enumerate(tests, start=1):
         result = _run_single_test(src, test)
 
@@ -461,7 +462,7 @@ def corregir_programa(DATOS_LOADED):
             msg = (
                 "El ejercicio no supera el test\n \n"
                 "▶ CONTEXTO INICIAL\n"
-                "─────── Teclado ────────\n"
+                "─────── Teclado ───────\n"
                 f"{test.get('stdin', '')}\n"
                 "─────── Ficheros ───────\n"
                 f"{files_ini_text}\n"
@@ -480,14 +481,57 @@ def corregir_programa(DATOS_LOADED):
             mostrar_error_scroll("Corregir Programa", msg)
             return
 
-    messagebox.showinfo("Corregir Programa", "✅ Todos los tests superados.")
+    # Si llega aquí, TODOS los tests han sido superados
+    wb = get_workbench()
 
-    # Subida del ejercicio
+    # 1) Ventana de espera sin botón Aceptar
+    espera = Toplevel(wb)
+    espera.title("Corregir Programa")
+    espera.geometry("400x160")
+    espera.resizable(False, False)
+    espera.transient(wb)
+    espera.grab_set()
+
+    frame = Frame(espera)
+    frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+    lbl1 = Label(frame, text="✅ Todos los tests superados.", font=("Arial", 11))
+    lbl1.pack(pady=(0, 10))
+
+    lbl2 = Label(frame, text="Espere un momento...", font=("Arial", 11))
+    lbl2.pack()
+
+    espera.update_idletasks()
+
+    # 2) Subida del ejercicio
     try:
         respuesta = _subir_ejercicios(ejercicio, dni, src)
-        messagebox.showinfo("Entrega ejercicios", respuesta)
     except Exception as e:
+        espera.destroy()
         messagebox.showerror("Error en la entrega de ejercicios", str(e))
+        return
+
+    # Cerrar ventana de espera
+    espera.destroy()
+
+    # 3) Nueva ventana con resumen de ejercicios entregados y botón OK
+    final = Toplevel(wb)
+    final.title("Entrega ejercicios")
+    final.geometry("500x250")
+    final.resizable(False, False)
+    final.transient(wb)
+    final.grab_set()
+
+    frame2 = Frame(final)
+    frame2.pack(fill="both", expand=True, padx=20, pady=20)
+
+    texto = f"Ejercicios entregados.\n\n{respuesta}"
+    lbl = Label(frame2, text=texto, justify="left", anchor="w")
+    lbl.pack(fill="both", expand=True)
+
+    btn_ok = Button(frame2, text="OK", width=10, command=final.destroy)
+    btn_ok.pack(pady=(15, 0))
+
 
 
 # ======================================================================
