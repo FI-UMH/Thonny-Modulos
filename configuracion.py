@@ -83,26 +83,31 @@ def pedir_dni_e_instrucciones():
     wb = get_workbench()
     top = Toplevel(wb)
     top.title("Inicio del ejercicio")
-    top.geometry("650x330")
+    top.geometry("650x380")     # más alto y ancho para evitar que tape el Entry
+    top.resizable(False, False)
     top.transient(wb)
     top.grab_set()
 
-    # Texto de instrucciones
     instrucciones = (
-        "      INSTRUCCIONES DEL EJERCICIO\n"
+        "INSTRUCCIONES DEL EJERCICIO\n\n"
         "1. Introduce tu DNI en el cuadro inferior.\n"
-        "2. No borres la cabecera del archivo.\n"
-        "3. Escribe el número de ejercicio en la cabecera\n"
+        "2. Pulsa 'Aceptar'. Ese DNI se escribirá automáticamente en la\n"
+        "   cabecera de todas las ventanas de código.\n"
+        "3. No borres la cabecera del archivo.\n"
         "4. Escribe tu programa debajo de la cabecera.\n"
+        "5. Guarda el archivo antes de ejecutar o corregir.\n"
     )
 
-    lbl = Label(top, text=instrucciones, justify="left", anchor="w")
-    lbl.pack(fill="both", expand=True, padx=15, pady=(15, 10))
+    # IMPORTANTE — NO usar expand=True aquí
+    lbl = Label(top, text=instrucciones, justify="left", anchor="nw")
+    lbl.pack(fill="x", padx=15, pady=(15, 10))
 
+    # Cuadro para el DNI
     lbl_dni = Label(top, text="DNI del alumno:")
-    lbl_dni.pack(anchor="w", padx=15)
+    lbl_dni.pack(anchor="w", padx=15, pady=(0, 5))
 
-    entry_dni = Entry(top, width=12)
+    entry_dni = Entry(top, width=18, font=("Arial", 12))  # tamaño garantizado visible
+    entry_dni.pack(anchor="w", padx=15)
 
     def aceptar(event=None):
         dni = entry_dni.get().strip()
@@ -113,12 +118,12 @@ def pedir_dni_e_instrucciones():
                 parent=top,
             )
             return
+
         global ALUMNO_DNI
         ALUMNO_DNI = dni
         top.destroy()
 
     def al_cerrar():
-        # Obligar a introducir DNI
         if not ALUMNO_DNI:
             messagebox.showerror(
                 "DNI obligatorio",
@@ -128,14 +133,13 @@ def pedir_dni_e_instrucciones():
         else:
             top.destroy()
 
-    btn_ok = Button(top, text="Aceptar", command=aceptar)
-    btn_ok.pack(pady=(0, 15))
+    btn_ok = Button(top, text="Aceptar", command=aceptar, width=12)
+    btn_ok.pack(pady=20)
 
     top.protocol("WM_DELETE_WINDOW", al_cerrar)
     entry_dni.focus_set()
     top.bind("<Return>", aceptar)
 
-    wb.wait_window(top)  # Espera a que se cierre la ventana
 
 
 # ======================================================================
