@@ -490,7 +490,6 @@ def corregir_programa(DATOS_LOADED):
     espera.geometry("400x160")
     espera.resizable(False, False)
     espera.transient(wb)
-    espera.grab_set()
 
     frame = Frame(espera)
     frame.pack(fill="both", expand=True, padx=20, pady=20)
@@ -502,6 +501,11 @@ def corregir_programa(DATOS_LOADED):
     lbl2.pack()
 
     espera.update_idletasks()
+    try:
+        espera.grab_set()
+    except Exception:
+        # Si falla el grab, seguimos sin modo modal
+        pass
 
     # 2) Subida del ejercicio
     try:
@@ -520,7 +524,6 @@ def corregir_programa(DATOS_LOADED):
     final.geometry("500x250")
     final.resizable(False, False)
     final.transient(wb)
-    final.grab_set()
 
     frame2 = Frame(final)
     frame2.pack(fill="both", expand=True, padx=20, pady=20)
@@ -531,6 +534,12 @@ def corregir_programa(DATOS_LOADED):
 
     btn_ok = Button(frame2, text="OK", width=10, command=final.destroy)
     btn_ok.pack(pady=(15, 0))
+
+    final.update_idletasks()
+    try:
+        final.grab_set()
+    except Exception:
+        pass
 
 
 
