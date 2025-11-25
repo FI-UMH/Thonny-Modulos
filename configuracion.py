@@ -102,23 +102,22 @@ def pedir_dni_e_instrucciones():
     instrucciones = (
         "INSTRUCCIONES DEL EJERCICIO\n\n"
         "1. Introduce tu DNI en el cuadro inferior.\n"
-        "2. Pulsa 'Aceptar'. Ese DNI se escribirá automáticamente en la cabecera.\n"
-        "3. No borres la cabecera del archivo.\n"
-        "4. Escribe tu programa debajo de la cabecera.\n"
-        "5. Guarda el archivo antes de ejecutar o corregir.\n"
+        "2. Introduce el numero de ejercicio en la cabecera.\n"
+        "3. Escribe tu programa debajo de la cabecera.\n"
+        "4. Guarda el archivo antes de ejecutar o corregir.\n"
     )
 
-    lbl = Label(frame, text=instrucciones, justify="left", anchor="w", font=("Arial", 11))
+    lbl = Label(frame, text=instrucciones, justify="left", anchor="w", font=("Arial", 12))
     lbl.pack(fill="x", pady=(0, 20))
 
     # Fila con texto + Entry en la misma línea
     fila = Frame(frame)
     fila.pack(fill="x", pady=(0, 20))
 
-    lbl_dni = Label(fila, text="DNI del alumno:", font=("Arial", 11))
+    lbl_dni = Label(fila, text="DNI del alumno:", font=("Arial", 12))
     lbl_dni.pack(side="left")
 
-    entry_dni = Entry(fila, width=18, font=("Arial", 12))
+    entry_dni = Entry(fila, width=18, font=("Arial", 13))
     entry_dni.pack(side="left", padx=10)
 
     def aceptar(event=None):
@@ -135,7 +134,7 @@ def pedir_dni_e_instrucciones():
         ALUMNO_DNI = dni
         top.destroy()
 
-    btn_ok = Button(frame, text="Aceptar", command=aceptar, width=12, font=("Arial", 11))
+    btn_ok = Button(frame, text="Aceptar", command=aceptar, width=12, font=("Arial", 12))
     btn_ok.pack(pady=10)
 
     def al_cerrar():
