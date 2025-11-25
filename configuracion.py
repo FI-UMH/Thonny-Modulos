@@ -480,45 +480,45 @@ def corregir_programa(DATOS_LOADED):
     # SI TODOS LOS TESTS PASAN → ventana final con botón Aceptar
     # ================================================================
 
-    def ventana_ok():
-        wb = get_workbench()
-        top = Toplevel(wb)
-        top.title("Corregir Programa")
-        top.geometry("420x200")
-        top.resizable(False, False)
-        top.transient(wb)
+def ventana_ok():
+    wb = get_workbench()
+    top = Toplevel(wb)
+    top.title("Corregir Programa")
+    top.geometry("420x200")
+    top.resizable(False, False)
+    top.transient(wb)
 
-        try:
-            top.grab_set()
-        except Exception:
-            pass
+    try:
+        top.grab_set()
+    except Exception:
+        pass
 
-        fuente = ("Arial", 13)
+    fuente = ("Arial", 13)
 
-        frame = Frame(top)
-        frame.pack(fill="both", expand=True, padx=20, pady=20)
+    frame = Frame(top)
+    frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-        Label(frame, text="✅ Todos los tests superados.",
-              font=("Arial", 14, "bold")).pack(pady=(0, 10))
+    Label(
+        frame,
+        text="✅ Todos los tests superados.",
+        font=("Arial", 14, "bold")
+    ).pack(pady=(0, 10))
 
-        Label(
-            frame,
-            text=(
-                "El ejercicio se está enviando\n"
-                "al servidor en segundo plano.\n\n"
-                "Puedes continuar trabajando."
-            ),
-            font=fuente,
-            justify="center",
-        ).pack(pady=(0, 20))
+    Label(
+        frame,
+        text=(
+            "El ejercicio se está enviando\n"
+            "al servidor en segundo plano.\n\n"
+            "Puedes continuar trabajando."
+        ),
+        font=fuente,
+        justify="center",
+    ).pack(pady=(0, 20))
 
-        def cerrar():
-            top.destroy()
+    def cerrar():
+        top.destroy()
 
-        Button(frame, text="Aceptar", width=12, font=fuente,
-               command=cerrar).pack()
-
-    ventana_ok()
+    Button(frame, text="Aceptar", width=12, font=fuente, command=cerrar).pack()
 
     # Envío silencioso en background (sin notificaciones)
     threading.Thread(
