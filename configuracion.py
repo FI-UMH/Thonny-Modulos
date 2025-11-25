@@ -89,13 +89,11 @@ def pedir_dni_e_instrucciones():
 
     # Texto de instrucciones
     instrucciones = (
-        "INSTRUCCIONES DEL EJERCICIO\n\n"
+        "      INSTRUCCIONES DEL EJERCICIO\n"
         "1. Introduce tu DNI en el cuadro inferior.\n"
-        "2. Pulsa 'Aceptar'. Ese DNI se escribirá automáticamente en la\n"
-        "   cabecera de todas las ventanas de código.\n"
-        "3. No borres la cabecera del archivo.\n"
+        "2. No borres la cabecera del archivo.\n"
+        "3. Escribe el número de ejercicio en la cabecera\n"
         "4. Escribe tu programa debajo de la cabecera.\n"
-        "5. Guarda el archivo antes de ejecutar o corregir.\n"
     )
 
     lbl = Label(top, text=instrucciones, justify="left", anchor="w")
@@ -259,6 +257,7 @@ def mostrar_error_scroll(titulo, mensaje):
         "CONTEXTO INICIAL",
         "RESULTADO OBTENIDO",
         "RESULTADO CORRECTO",
+        "-"
     )
 
     for palabra in titulos:
