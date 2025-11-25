@@ -376,7 +376,7 @@ def _subir_ejercicios(ejercicio, dni, src_code):
     )
     url_pomares = (
         "https://script.google.com/macros/s/"
-        "AKfycbxwDPaWyBATk_xRuxnGLEtPhpULa3WJHVidj7_7ttYhdYwmiVVI1wJxwkUDrQespcku-A/exec"
+        "AKfycbw1CMfaQcJuP1cLBmt5eHryrmb83Tb0oIrWu_XHfRQpYt8kWY_g6TpsQx92QwhB_SjyYg/exec"
     )
 
     data = {
