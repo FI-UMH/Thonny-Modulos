@@ -41,6 +41,7 @@ from tkinter import (
     Entry,
     Button,
 )
+import tkinter.font as tkfont
 
 import requests
 
@@ -227,9 +228,7 @@ def _extraer_datos_cabecera(src: str):
 
     return dni, ejercicio
 
-
 def mostrar_error_scroll(titulo, mensaje):
-    """Ventana con scroll para mostrar mensajes largos."""
     ventana = Toplevel()
     ventana.title(titulo)
     ventana.geometry("700x500")
@@ -245,8 +244,35 @@ def mostrar_error_scroll(titulo, mensaje):
     scroll_x.pack(side="bottom", fill="x")
     txt.configure(xscrollcommand=scroll_x.set)
 
+    # Insertamos TODO el mensaje
     txt.insert("1.0", mensaje)
+
+    # ==== Definir fuente en negrita para los títulos ====
+    base_font = tkfont.Font(font=txt["font"])
+    bold_font = base_font.copy()
+    bold_font.configure(weight="bold")
+
+    txt.tag_configure("titulo", font=bold_font)
+
+    # Palabras/títulos a resaltar
+    titulos = (
+        "CONTEXTO INICIAL",
+        "RESULTADO OBTENIDO",
+        "RESULTADO CORRECTO",
+    )
+
+    for palabra in titulos:
+        start = "1.0"
+        while True:
+            pos = txt.search(palabra, start, stopindex="end")
+            if not pos:
+                break
+            end = f"{pos}+{len(palabra)}c"
+            txt.tag_add("titulo", pos, end)
+            start = end
+
     txt.config(state="disabled")
+
 
 
 def _preprocesar_codigo(src: str) -> str:
