@@ -395,7 +395,6 @@ def _subir_ejercicios(ejercicio, dni, src_code):
 
     return respuesta_pomares.text
 
-
 def corregir_programa(DATOS_LOADED):
     """Lee el código del editor, ejecuta los tests y sube el ejercicio."""
     src = _get_editor_text()
@@ -484,27 +483,26 @@ def corregir_programa(DATOS_LOADED):
     # Si llega aquí, TODOS los tests han sido superados
     wb = get_workbench()
 
-    # 1) Ventana de espera sin botón Aceptar
+    # 1) Ventana de espera sin botón Aceptar, con fuente más grande
     espera = Toplevel(wb)
     espera.title("Corregir Programa")
-    espera.geometry("400x160")
+    espera.geometry("420x180")
     espera.resizable(False, False)
     espera.transient(wb)
 
     frame = Frame(espera)
     frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-    lbl1 = Label(frame, text="✅ Todos los tests superados.", font=("Arial", 11))
+    lbl1 = Label(frame, text="✅ Todos los tests superados.", font=("Arial", 13, "bold"))
     lbl1.pack(pady=(0, 10))
 
-    lbl2 = Label(frame, text="Espere un momento...", font=("Arial", 11))
+    lbl2 = Label(frame, text="Espere un momento...", font=("Arial", 12))
     lbl2.pack()
 
     espera.update_idletasks()
     try:
         espera.grab_set()
     except Exception:
-        # Si falla el grab, seguimos sin modo modal
         pass
 
     # 2) Subida del ejercicio
@@ -518,28 +516,39 @@ def corregir_programa(DATOS_LOADED):
     # Cerrar ventana de espera
     espera.destroy()
 
-    # 3) Nueva ventana con resumen de ejercicios entregados y botón OK
+    # 3) Nueva ventana con resumen de ejercicios entregados
     final = Toplevel(wb)
     final.title("Entrega ejercicios")
-    final.geometry("500x250")
-    final.resizable(False, False)
+    final.geometry("650x400")
+    final.resizable(True, True)  # se puede redimensionar
     final.transient(wb)
 
     frame2 = Frame(final)
-    frame2.pack(fill="both", expand=True, padx=20, pady=20)
+    frame2.pack(fill="both", expand=True, padx=10, pady=10)
 
+    # Texto con scroll y ajuste por palabras
     texto = f"Ejercicios entregados.\n\n{respuesta}"
-    lbl = Label(frame2, text=texto, justify="left", anchor="w")
-    lbl.pack(fill="both", expand=True)
 
-    btn_ok = Button(frame2, text="OK", width=10, command=final.destroy)
-    btn_ok.pack(pady=(15, 0))
+    text_widget = Text(frame2, wrap="word")
+    text_widget.pack(side="left", fill="both", expand=True)
+
+    scroll_y = Scrollbar(frame2, orient="vertical", command=text_widget.yview)
+    scroll_y.pack(side="right", fill="y")
+    text_widget.configure(yscrollcommand=scroll_y.set)
+
+    text_widget.insert("1.0", texto)
+    text_widget.config(state="disabled")  # solo lectura
+
+    # Botón OK para cerrar
+    btn_ok = Button(final, text="OK", width=10, command=final.destroy)
+    btn_ok.pack(pady=(5, 10))
 
     final.update_idletasks()
     try:
         final.grab_set()
     except Exception:
         pass
+
 
 
 
