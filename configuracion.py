@@ -257,7 +257,7 @@ def mostrar_error_scroll(titulo, mensaje):
         "CONTEXTO INICIAL",
         "RESULTADO OBTENIDO",
         "RESULTADO CORRECTO",
-        "-"
+        "-",
     )
 
     for palabra in titulos:
