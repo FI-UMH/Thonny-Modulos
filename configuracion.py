@@ -83,11 +83,28 @@ def pedir_dni_e_instrucciones():
     wb = get_workbench()
     top = Toplevel(wb)
     top.title("Inicio del ejercicio")
-    top.geometry("650x380")     # más alto y ancho para evitar que tape el Entry
+    top.geometry("700x420")      # ventana más grande y visible
     top.resizable(False, False)
     top.transient(wb)
     top.grab_set()
 
+    # ==== CONTENEDOR PRINCIPAL CON SCROLL ====
+    cont = Frame(top)
+    cont.pack(fill="both", expand=True)
+
+    canvas = Canvas(cont)
+    canvas.pack(side="left", fill="both", expand=True)
+
+    scroll = Scrollbar(cont, orient="vertical", command=canvas.yview)
+    scroll.pack(side="right", fill="y")
+
+    canvas.configure(yscrollcommand=scroll.set)
+    canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    frame = Frame(canvas)
+    canvas.create_window((0, 0), window=frame, anchor="nw")
+
+    # ==== TEXTO DE INSTRUCCIONES ====
     instrucciones = (
         "INSTRUCCIONES DEL EJERCICIO\n\n"
         "1. Introduce tu DNI en el cuadro inferior.\n"
@@ -98,17 +115,17 @@ def pedir_dni_e_instrucciones():
         "5. Guarda el archivo antes de ejecutar o corregir.\n"
     )
 
-    # IMPORTANTE — NO usar expand=True aquí
-    lbl = Label(top, text=instrucciones, justify="left", anchor="nw")
-    lbl.pack(fill="x", padx=15, pady=(15, 10))
+    lbl = Label(frame, text=instrucciones, justify="left", anchor="w", font=("Arial", 11))
+    lbl.grid(row=0, column=0, columnspan=2, sticky="w", padx=15, pady=(15, 10))
 
-    # Cuadro para el DNI
-    lbl_dni = Label(top, text="DNI del alumno:")
-    lbl_dni.pack(anchor="w", padx=15, pady=(0, 5))
+    # ==== FILA CON 'DNI DEL ALUMNO' + ENTRY ====
+    lbl_dni = Label(frame, text="DNI del alumno:", font=("Arial", 11))
+    lbl_dni.grid(row=1, column=0, sticky="w", padx=15, pady=(5, 5))
 
-    entry_dni = Entry(top, width=18, font=("Arial", 12))  # tamaño garantizado visible
-    entry_dni.pack(anchor="w", padx=15)
+    entry_dni = Entry(frame, width=18, font=("Arial", 12))
+    entry_dni.grid(row=1, column=1, sticky="w", pady=(5, 5))
 
+    # ==== BOTÓN ACEPTAR ====
     def aceptar(event=None):
         dni = entry_dni.get().strip()
         if not dni:
@@ -123,6 +140,9 @@ def pedir_dni_e_instrucciones():
         ALUMNO_DNI = dni
         top.destroy()
 
+    btn_ok = Button(frame, text="Aceptar", command=aceptar, width=12, font=("Arial", 11))
+    btn_ok.grid(row=2, column=0, columnspan=2, pady=20)
+
     def al_cerrar():
         if not ALUMNO_DNI:
             messagebox.showerror(
@@ -132,9 +152,6 @@ def pedir_dni_e_instrucciones():
             )
         else:
             top.destroy()
-
-    btn_ok = Button(top, text="Aceptar", command=aceptar, width=12)
-    btn_ok.pack(pady=20)
 
     top.protocol("WM_DELETE_WINDOW", al_cerrar)
     entry_dni.focus_set()
