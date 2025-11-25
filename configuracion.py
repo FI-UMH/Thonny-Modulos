@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-configuracion.py — Plugin unificado para Thonny
+configuracion/corregir.py — Plugin para Thonny
 
 Incluye:
  - Ventana inicial para pedir DNI + instrucciones
@@ -40,9 +40,9 @@ from tkinter import (
     Label,
     Entry,
     Button,
+    Frame,
 )
 import tkinter.font as tkfont
-
 import requests
 
 
@@ -50,8 +50,13 @@ import requests
 #                    VARIABLES GLOBALES
 # ======================================================================
 
-ALUMNO_DNI = ""  # Se rellenará en la ventana inicial
+ALUMNO_DNI = ""  # Se rellena en la ventana inicial
 ZIP_URL = "https://github.com/FI-UMH/Thonny-Ficheros/archive/refs/heads/main.zip"
+
+_PAREN_RE = re.compile(r"\([^()]*\)")
+_HDR_DNI_RE = re.compile(r"^\s*#\s*DNI\s*=\s*(.+)", re.MULTILINE | re.IGNORECASE)
+_HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*(.+)", re.MULTILINE | re.IGNORECASE)
+EXCLUDE = {"alumno.py", "stdin.txt", "stdout.txt"}
 
 
 # ======================================================================
@@ -61,7 +66,6 @@ ZIP_URL = "https://github.com/FI-UMH/Thonny-Ficheros/archive/refs/heads/main.zip
 def _get_editor_text():
     """Devuelve el texto del editor actual de Thonny o None."""
     try:
-        from thonny import get_workbench
         wb = get_workbench()
         editor = wb.get_editor_notebook().get_current_editor()
         if not editor:
@@ -78,53 +82,73 @@ def _get_editor_text():
 #          VENTANA INICIAL — PEDIR DNI + INSTRUCCIONES
 # ======================================================================
 
-def mostrar_error_scroll(titulo, mensaje):
-    ventana = Toplevel()
-    ventana.title(titulo)
-    ventana.geometry("700x500")
+def pedir_dni_e_instrucciones():
+    """Muestra una ventana inicial con instrucciones y campo para DNI."""
+    wb = get_workbench()
+    top = Toplevel(wb)
+    top.title("Inicio del ejercicio")
+    top.geometry("700x360")
+    top.resizable(False, False)
+    top.transient(wb)
+    top.grab_set()
 
-    txt = Text(ventana, wrap="none")
-    txt.pack(fill="both", expand=True)
+    frame = Frame(top)
+    frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-    scroll_y = Scrollbar(ventana, orient="vertical", command=txt.yview)
-    scroll_y.pack(side="right", fill="y")
-    txt.configure(yscrollcommand=scroll_y.set)
-
-    scroll_x = Scrollbar(ventana, orient="horizontal", command=txt.xview)
-    scroll_x.pack(side="bottom", fill="x")
-    txt.configure(xscrollcommand=scroll_x.set)
-
-    # Insertamos TODO el mensaje
-    txt.insert("1.0", mensaje)
-
-    # ==== Definir fuente en negrita para los títulos ====
-    base_font = tkfont.Font(font=txt["font"])
-    bold_font = base_font.copy()
-    bold_font.configure(weight="bold")
-
-    txt.tag_configure("titulo", font=bold_font)
-
-    # Palabras/títulos a resaltar
-    titulos = (
-        "CONTEXTO INICIAL",
-        "RESULTADO OBTENIDO",
-        "RESULTADO CORRECTO",
+    instrucciones = (
+        "INSTRUCCIONES DEL EJERCICIO\n\n"
+        "1. Introduce tu DNI en el cuadro inferior.\n"
+        "2. Pulsa 'Aceptar'. Ese DNI se escribirá automáticamente en la cabecera.\n"
+        "3. No borres la cabecera del archivo.\n"
+        "4. Escribe tu programa debajo de la cabecera.\n"
+        "5. Guarda el archivo antes de ejecutar o corregir.\n"
     )
 
-    for palabra in titulos:
-        start = "1.0"
-        while True:
-            pos = txt.search(palabra, start, stopindex="end")
-            if not pos:
-                break
-            end = f"{pos}+{len(palabra)}c"
-            txt.tag_add("titulo", pos, end)
-            start = end
+    lbl = Label(frame, text=instrucciones, justify="left", anchor="w", font=("Arial", 11))
+    lbl.pack(fill="x", pady=(0, 20))
 
-    txt.config(state="disabled")
+    # Fila con texto + Entry en la misma línea
+    fila = Frame(frame)
+    fila.pack(fill="x", pady=(0, 20))
 
+    lbl_dni = Label(fila, text="DNI del alumno:", font=("Arial", 11))
+    lbl_dni.pack(side="left")
 
+    entry_dni = Entry(fila, width=18, font=("Arial", 12))
+    entry_dni.pack(side="left", padx=10)
 
+    def aceptar(event=None):
+        dni = entry_dni.get().strip()
+        if not dni:
+            messagebox.showerror(
+                "DNI obligatorio",
+                "Debes introducir tu DNI para continuar.",
+                parent=top,
+            )
+            return
+
+        global ALUMNO_DNI
+        ALUMNO_DNI = dni
+        top.destroy()
+
+    btn_ok = Button(frame, text="Aceptar", command=aceptar, width=12, font=("Arial", 11))
+    btn_ok.pack(pady=10)
+
+    def al_cerrar():
+        if not ALUMNO_DNI:
+            messagebox.showerror(
+                "DNI obligatorio",
+                "Debes introducir tu DNI para continuar.",
+                parent=top,
+            )
+        else:
+            top.destroy()
+
+    top.protocol("WM_DELETE_WINDOW", al_cerrar)
+    entry_dni.focus_set()
+    top.bind("<Return>", aceptar)
+
+    wb.wait_window(top)
 
 
 # ======================================================================
@@ -165,12 +189,6 @@ def descargar_ficheros():
 # ======================================================================
 #                 BLOQUE 2 — CORREGIR PROGRAMA
 # ======================================================================
-
-_PAREN_RE = re.compile(r"\([^()]*\)")
-_HDR_DNI_RE = re.compile(r"^\s*#\s*DNI\s*=\s*(.+)", re.MULTILINE | re.IGNORECASE)
-_HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*(.+)", re.MULTILINE | re.IGNORECASE)
-EXCLUDE = {"alumno.py", "stdin.txt", "stdout.txt"}
-
 
 def _paren_counter(s: str) -> Counter:
     """Normaliza salidas usando tokens entre paréntesis."""
@@ -214,10 +232,12 @@ def _extraer_datos_cabecera(src: str):
 
     return dni, ejercicio
 
+
 def mostrar_error_scroll(titulo, mensaje):
+    """Ventana con scroll para mostrar mensajes largos, con títulos en negrita."""
     ventana = Toplevel()
     ventana.title(titulo)
-    ventana.geometry("700x500")
+    ventana.geometry("800x500")
 
     txt = Text(ventana, wrap="none")
     txt.pack(fill="both", expand=True)
@@ -230,23 +250,19 @@ def mostrar_error_scroll(titulo, mensaje):
     scroll_x.pack(side="bottom", fill="x")
     txt.configure(xscrollcommand=scroll_x.set)
 
-    # Insertamos TODO el mensaje
     txt.insert("1.0", mensaje)
 
-    # ==== Definir fuente en negrita para los títulos ====
+    # Fuente en negrita para los títulos
     base_font = tkfont.Font(font=txt["font"])
     bold_font = base_font.copy()
     bold_font.configure(weight="bold")
 
     txt.tag_configure("titulo", font=bold_font)
 
-    # Palabras/títulos a resaltar
     titulos = (
         "CONTEXTO INICIAL",
         "RESULTADO OBTENIDO",
         "RESULTADO CORRECTO",
-        "─────── Teclado ────────",
-        "─────── Ficheros ───────",
     )
 
     for palabra in titulos:
@@ -260,7 +276,6 @@ def mostrar_error_scroll(titulo, mensaje):
             start = end
 
     txt.config(state="disabled")
-
 
 
 def _preprocesar_codigo(src: str) -> str:
@@ -340,7 +355,6 @@ def _run_single_test(src_code: str, test: dict) -> dict:
 
 def _subir_ejercicios(ejercicio, dni, src_code):
     """Sube el ejercicio a los scripts de Google Apps."""
-    # Hostname
     hostname = socket.gethostname()
 
     # IP local
@@ -381,6 +395,7 @@ def _subir_ejercicios(ejercicio, dni, src_code):
 
     return respuesta_pomares.text
 
+
 def corregir_programa(DATOS_LOADED):
     """Lee el código del editor, ejecuta los tests y sube el ejercicio."""
     src = _get_editor_text()
@@ -392,7 +407,7 @@ def corregir_programa(DATOS_LOADED):
     if not dni or not ejercicio:
         messagebox.showerror(
             "Corregir Programa",
-            "No se pudieron extraer DNI y EJERCICIO de la cabecera."
+            "No se pudieron extraer DNI y EJERCICIO de la cabecera.",
         )
         return
 
@@ -416,7 +431,7 @@ def corregir_programa(DATOS_LOADED):
     if ejercicio not in all_tests:
         messagebox.showerror(
             "Corregir Programa",
-            f"No hay tests para el ejercicio {ejercicio}."
+            f"No hay tests para el ejercicio {ejercicio}.",
         )
         return
 
@@ -430,7 +445,6 @@ def corregir_programa(DATOS_LOADED):
             return
 
         if not result["ok_stdout"] or not result["ok_files"]:
-            # Construir textos de ficheros (inicial, obtenido, esperado)
             files_ini_text = "".join(
                 f"'{fn}':\n{content}\n"
                 for fn, content in (test.get("filesIni") or {}).items()
@@ -468,7 +482,7 @@ def corregir_programa(DATOS_LOADED):
 
     messagebox.showinfo("Corregir Programa", "✅ Todos los tests superados.")
 
-    # Subida del ejercicio (igual que antes)
+    # Subida del ejercicio
     try:
         respuesta = _subir_ejercicios(ejercicio, dni, src)
         messagebox.showinfo("Entrega ejercicios", respuesta)
@@ -476,15 +490,14 @@ def corregir_programa(DATOS_LOADED):
         messagebox.showerror("Error en la entrega de ejercicios", str(e))
 
 
-
 # ======================================================================
 #         BLOQUE 3 — CONFIGURACIÓN DE THONNY (CABECERA, VISTAS, ...)
 # ======================================================================
 
 def _config_cabecera():
+    """Inserta cabecera con DNI en todos los editores nuevos."""
     from thonny.editors import Editor
 
-    # Usar el DNI global en todas las cabeceras nuevas
     cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
     _original_init = Editor.__init__
 
@@ -499,7 +512,7 @@ def _config_cabecera():
 
     Editor.__init__ = _hook
 
-    # Refuerzo para el primer editor que ya esté abierto
+    # Refuerzo para el primer editor ya abierto
     def inicial():
         wb = get_workbench()
         ed = wb.get_editor_notebook().get_current_editor()
@@ -571,10 +584,10 @@ def configurar(DATOS_LOADED):
     """
     wb = get_workbench()
 
-    # 1) Pedir DNI + mostrar instrucciones (bloqueante hasta que el alumno responda)
+    # 1) Pedir DNI (bloqueante)
     pedir_dni_e_instrucciones()
 
-    # 2) Configuraciones base (ya con ALUMNO_DNI relleno)
+    # 2) Configuración base (ya con ALUMNO_DNI)
     _config_cabecera()
     _config_vistas()
     _config_guardar_antes()
@@ -588,13 +601,11 @@ def configurar(DATOS_LOADED):
 
         menu.add_separator()
 
-        # 📥 Descargar ficheros
         menu.add_command(
             label="📥 Descargar ficheros",
             command=descargar_ficheros,
         )
 
-        # ✅ Corregir programa
         menu.add_command(
             label="✅ Corregir programa",
             command=lambda: corregir_programa(DATOS_LOADED),
