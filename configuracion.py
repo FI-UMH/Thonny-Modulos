@@ -30,7 +30,7 @@ from tkinter import (
     Button,
     Frame,
 )
-import tkinter.font as tkfont
+import tkinter.font as tkfontALUMNO_DNI = ""
 import requests
 
 
@@ -64,77 +64,6 @@ def _get_editor_text():
             return editor.get_text()
     except Exception:
         return None
-
-
-# ======================================================================
-#                    VENTANA INICIAL — PEDIR DNI
-# ======================================================================
-
-def pedir_dni_e_instrucciones():
-    wb = get_workbench()
-    top = Toplevel(wb)
-    top.title("Inicio del ejercicio")
-    top.geometry("700x360")
-    top.resizable(False, False)
-    top.transient(wb)
-
-    try:
-        top.grab_set()
-    except Exception:
-        pass
-
-    fuente = ("Arial", 13)
-
-    frame = Frame(top)
-    frame.pack(fill="both", expand=True, padx=20, pady=20)
-
-    instrucciones = (
-        "INSTRUCCIONES DEL EJERCICIO\n\n"
-        "1. Introduce tu DNI y EJERCICIO en la cabecera.\n"
-        "2. Escribe tu programa debajo.\n"
-        "3. Guarda antes de ejecutar o corregir.\n"
-    )
-
-    Label(frame, text=instrucciones, justify="left",
-          anchor="w", font=fuente).pack(fill="x", pady=(0, 20))
-
-    fila = Frame(frame)
-    fila.pack(fill="x", pady=(0, 20))
-
-    Label(fila, text="DNI del alumno:", font=fuente).pack(side="left")
-
-    entry_dni = Entry(fila, width=18, font=fuente)
-    entry_dni.pack(side="left", padx=10)
-
-    def aceptar(event=None):
-        dni = entry_dni.get().strip()
-        if not dni:
-            messagebox.showerror("DNI obligatorio",
-                                 "Debes introducir tu DNI para continuar.",
-                                 parent=top)
-            return
-
-        global ALUMNO_DNI
-        ALUMNO_DNI = dni
-        top.destroy()
-
-    Button(frame, text="Aceptar", command=aceptar,
-           width=12, font=fuente).pack(pady=10)
-
-    def al_cerrar():
-        if not ALUMNO_DNI:
-            messagebox.showerror("DNI obligatorio",
-                                 "Debes introducir tu DNI para continuar.",
-                                 parent=top)
-        else:
-            top.destroy()
-
-    top.protocol("WM_DELETE_WINDOW", al_cerrar)
-    entry_dni.focus_set()
-    top.bind("<Return>", aceptar)
-
-    wb.wait_window(top)
-
 
 # ======================================================================
 #                BLOQUE 1 — DESCARGAR FICHEROS
@@ -196,6 +125,7 @@ def _decode_bytes(b: bytes) -> str:
 
 
 def _extraer_datos_cabecera(src: str):
+    global ALUMNO_DNI
     dni = None
     ejercicio = None
 
@@ -203,7 +133,7 @@ def _extraer_datos_cabecera(src: str):
     if m_dni:
         dni = m_dni.group(1).strip().upper()
         ALUMNO_DNI = dni
-
+        
     m_ejer = _HDR_EJER_RE.search(src)
     if m_ejer:
         ejercicio = m_ejer.group(1).strip().upper()
@@ -476,7 +406,7 @@ def corregir_programa(DATOS_LOADED):
             return
 
     # ================================================================
-    # SI TODOS LOS TESTS PASAN → ventana final con botón Aceptар
+    # SI TODOS LOS TESTS PASAN → ventana final con botón Aceptаr
     # ================================================================
 
     def ventana_ok():
