@@ -201,11 +201,12 @@ def _extraer_datos_cabecera(src: str):
 
     m_dni = _HDR_DNI_RE.search(src)
     if m_dni:
-        dni = m_dni.group(1).strip()
+        dni = m_dni.group(1).strip().upper()
+        ALUMNO_DNI = dni
 
     m_ejer = _HDR_EJER_RE.search(src)
     if m_ejer:
-        ejercicio = m_ejer.group(1).strip()
+        ejercicio = m_ejer.group(1).strip().upper()
 
     return dni, ejercicio
 
@@ -397,9 +398,9 @@ def corregir_programa(DATOS_LOADED):
         messagebox.showerror("Corregir Programa",
             ( "No se pudieron extraer DNI y EJERCICIO de la cabecera.\n\n"
             "Ejemplo de cabecera:\n"
-            "# DNI = 12345678J\n"
-            "# EJERCICIO = 001\n"
-            "...\nPrograma del alumno" )
+            "    # DNI = 12345678E\n"
+            "    # EJERCICIO = 001\n"
+            "    ...\n...codigo fuente" )
         )
         return
 
