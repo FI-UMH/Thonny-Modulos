@@ -328,7 +328,7 @@ def corregir_programa(DATOS_LOADED):
             "Ejemplo de cabecera:\n"
             "    # DNI = 12345678E\n"
             "    # EJERCICIO = 001\n"
-            "    ...\n...codigo fuente" )
+            "    ...\n    codigo fuente" )
         )
         return
 
