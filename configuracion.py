@@ -395,11 +395,11 @@ def corregir_programa(DATOS_LOADED):
     dni, ejercicio = _extraer_datos_cabecera(src)
     if not dni or not ejercicio:
         messagebox.showerror("Corregir Programa",
-            "❌ No se pudieron extraer DNI y EJERCICIO de la cabecera.\n",
-            "Ejemplo de cabecera:\n",
-            "# DNI = 12345678J",
-            "# EJERCICIO = 001",
-            "...\nPrograma del alumno",
+            ("No se pudieron extraer DNI y EJERCICIO de la cabecera.\n\n"
+            "Ejemplo de cabecera:\n"
+            "# DNI = 12345678J\n"
+            "# EJERCICIO = 001\n"
+            "...\nPrograma del alumno"
         )
         return
 
@@ -530,7 +530,7 @@ def _config_cabecera():
     """Inserta cabecera con DNI + EJERCICIO en editores nuevos."""
     from thonny.editors import Editor
 
-    cabecera = "# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
+    cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
     _original_init = Editor.__init__
 
     def _hook(self, *args, **kwargs):
