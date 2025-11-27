@@ -527,7 +527,7 @@ def _config_cabecera():
     """Inserta cabecera con DNI + EJERCICIO en editores nuevos."""
     from thonny.editors import Editor
 
-    cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
+    cabecera = "# DNI = \n# EJERCICIO = \n\n"
     _original_init = Editor.__init__
 
     def _hook(self, *args, **kwargs):
@@ -614,9 +614,6 @@ def _config_guardar_antes():
 
 def configurar(DATOS_LOADED):
     wb = get_workbench()
-
-    # Ventana inicial DNI
-    pedir_dni_e_instrucciones()
 
     # Configuraciones base
     _config_cabecera()
