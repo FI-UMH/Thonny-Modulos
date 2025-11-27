@@ -33,9 +33,8 @@ from tkinter import (
 import tkinter.font as tkfont
 import requests
 
-
 # ======================================================================
-#                VARIABLES GLOBALES Y EXPRESIONES REGEX
+#                   VARIABLES GLOBALES Y EXPRESIONES REGEX
 # ======================================================================
 
 ALUMNO_DNI = ""
