@@ -30,7 +30,7 @@ from tkinter import (
     Button,
     Frame,
 )
-import tkinter.font as tkfontALUMNO_DNI = ""
+import tkinter.font as tkfont
 import requests
 
 
