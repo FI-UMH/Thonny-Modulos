@@ -135,7 +135,7 @@ def _extraer_datos_cabecera(src: str):
         
     m_ejer = _HDR_EJER_RE.search(src)
     if m_ejer:
-        ejercicio = m_ejer.group(1).strip().upper()
+        ejercicio = m_ejer.group(1).strip()
 
     return dni, ejercicio
 
