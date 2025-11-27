@@ -327,7 +327,7 @@ def corregir_programa(DATOS_LOADED):
             ( "No se pudieron extraer DNI y EJERCICIO de la cabecera.\n\n"
             "Ejemplo de cabecera:\n"
             "    # DNI = 12345678E\n"
-            "    # EJERCICIO = 001\n"
+            "    # EJERCICIO = p001\n"
             "    ...\n    codigo fuente" )
         )
         return
