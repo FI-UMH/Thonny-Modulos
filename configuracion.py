@@ -451,44 +451,55 @@ def corregir_programa(DATOS_LOADED):
         daemon=True
     ).start()
 
-
 # ======================================================================
-#       CONFIGURACIÓN INICIAL (CABECERA, VISTAS, GUARDADO...)
+#       CONFIGURACIÓN INICIAL (CABECERA, VISTAS, GUARDADO...)
 # ======================================================================
 
 def _config_cabecera():
-    """Inserta cabecera con DNI + EJERCICIO en editores nuevos."""
-    from thonny.editors import Editor
+    """Inserta cabecera con DNI + EJERCICIO en editores nuevos."""
+    from thonny.editors import Editor
+    
+    # IMPORTANTE: Ya NO se define la cabecera aquí,
+    # ya que capturaría el valor inicial de ALUMNO_DNI ("").
+    
+    _original_init = Editor.__init__
 
-    cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
-    _original_init = Editor.__init__
+    def _hook(self, *args, **kwargs):
+        _original_init(self, *args, **kwargs)
+        
+        if self.get_filename() is None:
+            # 💡 SOLUCIÓN: Generamos la cabecera *dentro* del hook
+            # para que lea el valor actual de la global ALUMNO_DNI.
+            global ALUMNO_DNI  # (opcional, pero buena práctica si se modificara aquí)
+            cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
+            
+            try:
+                widget = self.get_text_widget()
+                widget.insert("1.0", cabecera)
+            except Exception:
+                self.set_text(cabecera)
 
-    def _hook(self, *args, **kwargs):
-        _original_init(self, *args, **kwargs)
-        if self.get_filename() is None:
-            try:
-                widget = self.get_text_widget()
-                widget.insert("1.0", cabecera)
-            except Exception:
-                self.set_text(cabecera)
+    Editor.__init__ = _hook
 
-    Editor.__init__ = _hook
+    # Primera pestaña ya abierta
+    def inicial():
+        wb = get_workbench()
+        ed = wb.get_editor_notebook().get_current_editor()
+        
+        # 💡 SOLUCIÓN: Generamos la cabecera *dentro* de inicial()
+        global ALUMNO_DNI
+        cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
+        
+        if ed and ed.get_filename() is None:
+            try:
+                w = ed.get_text_widget()
+                w.delete("1.0", "end")
+                w.insert("1.0", cabecera)
+            except Exception:
+                ed.set_text(cabecera)
 
-    # Primera pestaña ya abierta
-    def inicial():
-        wb = get_workbench()
-        ed = wb.get_editor_notebook().get_current_editor()
-        if ed and ed.get_filename() is None:
-            try:
-                w = ed.get_text_widget()
-                w.delete("1.0", "end")
-                w.insert("1.0", cabecera)
-            except Exception:
-                ed.set_text(cabecera)
-
-    wb = get_workbench()
-    wb.after(500, inicial)
-
+    wb = get_workbench()
+    wb.after(500, inicial)
 
 def _config_vistas():
     wb = get_workbench()
