@@ -90,11 +90,9 @@ def pedir_dni_e_instrucciones():
 
     instrucciones = (
         "INSTRUCCIONES DEL EJERCICIO\n\n"
-        "1. Introduce tu DNI en el cuadro inferior.\n"
-        "2. Pulsa 'Aceptar'. Ese DNI se escribirá automáticamente en la cabecera.\n"
-        "3. No borres la cabecera del archivo.\n"
-        "4. Escribe tu programa debajo.\n"
-        "5. Guarda antes de ejecutar o corregir.\n"
+        "1. Introduce tu DNI y EJERCICIO en la cabecera.\n"
+        "2. Escribe tu programa debajo.\n"
+        "3. Guarda antes de ejecutar o corregir.\n"
     )
 
     Label(frame, text=instrucciones, justify="left",
