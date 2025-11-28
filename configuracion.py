@@ -140,12 +140,15 @@ def _extraer_datos_cabecera(src: str):
     ejercicio = None
 
     m_dni = _HDR_DNI_RE.search(src)
+    messagebox.showerror("m_dni",m_dni) #######################################################
     if m_dni:
         dni = m_dni.group(1).strip().upper()
         ALUMNO_DNI = dni
     else:
         dni = ""
     m_ejer = _HDR_EJER_RE.search(src)
+    messagebox.showerror("m_ejer",m_ejer) #######################################################
+
     if m_ejer:
         ejercicio = m_ejer.group(1).strip()
     else:
