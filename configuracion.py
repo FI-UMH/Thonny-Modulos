@@ -1,6 +1,6 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
-Plugin completo configuracion.py — versión corregida y robusta
+Plugin completo configuracion.py — versión final, robusta y sin requests
 """
 
 import sys
@@ -61,6 +61,9 @@ def _send_post(url, data):
 # ======================================================================
 
 def _get_editor_text():
+    """
+    Obtiene el contenido EXACTO del editor, incluidos saltos reales.
+    """
     try:
         wb = get_workbench()
         editor = wb.get_editor_notebook().get_current_editor()
@@ -69,6 +72,40 @@ def _get_editor_text():
         return editor.get_text_widget().get("1.0", "end")
     except Exception:
         return None
+
+# ======================================================================
+#      🌟 VERSIÓN ROBUSTA DE LECTURA DE CABECERA (INFALIBLE)
+# ======================================================================
+
+def _extraer_datos_cabecera(src: str):
+    """
+    Lee solo las líneas de cabecera SIN usar regex.
+    Nunca puede capturar print('hola') ni nada incorrecto.
+    """
+    global ALUMNO_DNI
+
+    dni = ""
+    ejercicio = ""
+
+    for linea in src.splitlines():
+        linea_up = linea.upper().strip()
+
+        if linea_up.startswith("# DNI"):
+            partes = linea.split("=", 1)
+            if len(partes) > 1:
+                dni = partes[1].strip().upper()
+                ALUMNO_DNI = dni
+
+        if linea_up.startswith("# EJERCICIO"):
+            partes = linea.split("=", 1)
+            if len(partes) > 1:
+                ejercicio = partes[1].strip()
+
+    return dni, ejercicio
+
+# ======================================================================
+#                DESCARGAR FICHEROS
+# ======================================================================
 
 def descargar_ficheros():
     carpeta = filedialog.askdirectory(title="Selecciona carpeta destino")
@@ -99,37 +136,7 @@ def descargar_ficheros():
         messagebox.showerror("Error al descargar ficheros", str(e))
 
 # ======================================================================
-#      🌟 VERSIÓN ROBUSTA DE LECTURA DE CABECERA (INFALIBLE)
-# ======================================================================
-
-def _extraer_datos_cabecera(src: str):
-    """
-    Lee solo las líneas de cabecera SIN usar regex.
-    No puede fallar con saltos invisibles ni CRLF raretes.
-    """
-    global ALUMNO_DNI
-
-    dni = ""
-    ejercicio = ""
-
-    for linea in src.splitlines():
-        linea_up = linea.upper()
-
-        if linea_up.startswith("# DNI"):
-            partes = linea.split("=", 1)
-            if len(partes) > 1:
-                dni = partes[1].strip().upper()
-                ALUMNO_DNI = dni
-
-        if linea_up.startswith("# EJERCICIO"):
-            partes = linea.split("=", 1)
-            if len(partes) > 1:
-                ejercicio = partes[1].strip()
-
-    return dni, ejercicio
-
-# ======================================================================
-#               VENTANA GRANDE CON SCROLL (ERRORES)
+#                VENTANA GRANDE CON SCROLL (ERRORES)
 # ======================================================================
 
 def mostrar_error_scroll(titulo, mensaje):
@@ -137,7 +144,7 @@ def mostrar_error_scroll(titulo, mensaje):
     ventana.title(titulo)
     ventana.geometry("820x520")
 
-    txt = Text(ventana, wrap="none", font=("Consolas", 14))
+    txt = Text(ventana, wrap="none", font=("Consolas", 13))
     txt.pack(fill="both", expand=True)
 
     scroll_y = Scrollbar(ventana, orient="vertical", command=txt.yview)
@@ -149,12 +156,6 @@ def mostrar_error_scroll(titulo, mensaje):
     txt.configure(xscrollcommand=scroll_x.set)
 
     txt.insert("1.0", mensaje)
-
-    base_font = tkfont.Font(font=txt["font"])
-    bold_font = base_font.copy()
-    bold_font.configure(weight="bold")
-    txt.tag_configure("titulo", font=bold_font)
-
     txt.config(state="disabled")
 
 # ======================================================================
@@ -307,7 +308,6 @@ def corregir_programa(DATOS_LOADED):
 
     dni, ejercicio = _extraer_datos_cabecera(src)
 
-    # SOLO error si NO se encontró la línea
     if dni is None or ejercicio is None:
         messagebox.showerror(
             "Corregir Programa",
@@ -315,7 +315,6 @@ def corregir_programa(DATOS_LOADED):
         )
         return
 
-    # ejercicio vacío ('') ES VÁLIDO
     if ejercicio == "":
         messagebox.showinfo(
             "Ejercicio vacío",
@@ -371,17 +370,13 @@ def corregir_programa(DATOS_LOADED):
             )
 
             msg = (
-                "El ejercicio no supera el test\n \n"
+                "El ejercicio no supera el test\n\n"
                 "▶ CONTEXTO INICIAL\n"
-                "───────────────\n"
-                f"{test.get('stdin', '')}\n"
                 f"{files_ini_text}\n"
                 "▶ RESULTADO OBTENIDO\n"
-                "───────────────\n"
                 f"{result['stdout_alumno']}\n"
                 f"{files_end_text}\n"
                 "▶ RESULTADO CORRECTO\n"
-                "───────────────\n"
                 f"{test.get('stdout', '')}\n"
                 f"{files_exp_text}"
             )
@@ -389,7 +384,7 @@ def corregir_programa(DATOS_LOADED):
             mostrar_error_scroll("Corregir Programa", msg)
             return
 
-    # OK FINAL
+    # OK
     def ventana_ok():
         wb = get_workbench()
         top = Toplevel(wb)
@@ -408,12 +403,10 @@ def corregir_programa(DATOS_LOADED):
         frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         Label(frame, text="✅ Todos los tests superados.",
-              font=("Arial", 14, "bold")).pack(pady=(0, 10))
-
-        Label(frame, text="Ejercicio CORRECTO", font=fuente).pack(pady=(0, 20))
+              font=("Arial", 14, "bold")).pack()
 
         Button(frame, text="Aceptar", width=12, font=fuente,
-               command=top.destroy).pack()
+               command=top.destroy).pack(pady=20)
 
     ventana_ok()
 
@@ -532,10 +525,14 @@ def configurar(DATOS_LOADED):
             return
 
         menu.add_separator()
+
+        # Descargar ficheros (ya no dará error)
         menu.add_command(
             label="📥 Descargar ficheros",
             command=descargar_ficheros,
         )
+
+        # Corregir programa
         menu.add_command(
             label="✅ Corregir programa",
             command=lambda: corregir_programa(DATOS_LOADED),
