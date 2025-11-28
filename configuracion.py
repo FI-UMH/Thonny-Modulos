@@ -329,7 +329,7 @@ def corregir_programa(DATOS_LOADED):
         return
 
     dni, ejercicio = _extraer_datos_cabecera(src)
-    if not dni or not ejercicio:
+    if dni is None or ejercicio is None:
         messagebox.showerror("Corregir Programa",
             ( "No se pudieron extraer DNI y EJERCICIO de la cabecera.\n\n"
             "Ejemplo de cabecera:\n"
