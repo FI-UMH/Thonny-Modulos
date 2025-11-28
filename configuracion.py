@@ -159,7 +159,7 @@ def mostrar_error_scroll(titulo, mensaje):
     ventana.title(titulo)
     ventana.geometry("820x520")
 
-    txt = Text(ventana, wrap="none", font=("Consolas", 10))
+    txt = Text(ventana, wrap="none", font=("Consolas", 14))
     txt.pack(fill="both", expand=True)
 
     scroll_y = Scrollbar(ventana, orient="vertical", command=txt.yview)
