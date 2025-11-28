@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Plugin completo configuracion.py — versión final
+Plugin completo configuracion.py — versión sin requests
 """
 
 import sys
@@ -13,6 +13,7 @@ import traceback
 import io
 import zipfile
 import urllib.request
+import urllib.parse
 import socket
 import uuid
 import threading
@@ -30,7 +31,6 @@ from tkinter import (
     Frame,
 )
 import tkinter.font as tkfont
-import requests
 
 # ======================================================================
 #                   VARIABLES GLOBALES Y EXPRESIONES REGEX
@@ -45,6 +45,21 @@ _HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*(.+)", re.MULTILINE | re.IGN
 
 EXCLUDE = {"alumno.py", "stdin.txt", "stdout.txt"}
 
+# ======================================================================
+#                     FUNCIÓN POST SIN REQUESTS
+# ======================================================================
+
+def _send_post(url, data):
+    """Envía un POST estándar usando solo urllib.request."""
+    try:
+        encoded = urllib.parse.urlencode(data).encode("utf-8")
+        req = urllib.request.Request(url, data=encoded, method="POST")
+        req.add_header("Content-Type", "application/x-www-form-urlencoded")
+
+        with urllib.request.urlopen(req, timeout=10) as f:
+            return f.read().decode("utf-8", errors="replace")
+    except Exception:
+        return None
 
 # ======================================================================
 #                          UTILIDADES COMUNES
@@ -96,7 +111,6 @@ def descargar_ficheros():
     except Exception as e:
         messagebox.showerror("Error al descargar ficheros", str(e))
 
-
 # ======================================================================
 #            BLOQUE 2 — UTILIDADES DE CORRECCIÓN
 # ======================================================================
@@ -112,7 +126,6 @@ def _paren_counter(s: str) -> Counter:
         norm.append("(" + inner_no_spaces + ")")
     return Counter(norm)
 
-
 def _decode_bytes(b: bytes) -> str:
     for enc in ("utf-8", "utf-8-sig", "latin-1"):
         try:
@@ -120,7 +133,6 @@ def _decode_bytes(b: bytes) -> str:
         except Exception:
             continue
     return b.decode("utf-8", errors="replace")
-
 
 def _extraer_datos_cabecera(src: str):
     global ALUMNO_DNI
@@ -137,7 +149,6 @@ def _extraer_datos_cabecera(src: str):
         ejercicio = m_ejer.group(1).strip()
 
     return dni, ejercicio
-
 
 # ======================================================================
 #               VENTANA GRANDE CON SCROLL (ERRORES)
@@ -185,7 +196,6 @@ def mostrar_error_scroll(titulo, mensaje):
 
     txt.config(state="disabled")
 
-
 # ======================================================================
 #                EJECUCIÓN DE TESTS
 # ======================================================================
@@ -199,7 +209,6 @@ def _preprocesar_codigo(src: str) -> str:
         "    return x\n\n"
     )
     return cabecera + src_mod
-
 
 def _run_single_test(src_code: str, test: dict) -> dict:
     res = {
@@ -227,7 +236,6 @@ def _run_single_test(src_code: str, test: dict) -> dict:
                 with open(fn_path, "w", encoding="utf-8") as f:
                     f.write(content)
 
-            # Ejecutar programa del alumno
             completed = subprocess.run(
                 [sys.executable, alumno_py],
                 cwd=td,
@@ -240,7 +248,6 @@ def _run_single_test(src_code: str, test: dict) -> dict:
             stdout = _decode_bytes(completed.stdout)
             res["stdout_alumno"] = stdout
 
-            # Ficheros finales
             files_now = {}
             for name in os.listdir(td):
                 p = os.path.join(td, name)
@@ -263,13 +270,12 @@ def _run_single_test(src_code: str, test: dict) -> dict:
 
     return res
 
-
 # ======================================================================
-#                SUBIR EJERCICIO (EN SEGUNDO PLANO)
+#                SUBIR EJERCICIO SIN REQUESTS
 # ======================================================================
 
 def _subir_ejercicios(ejercicio, dni, src_code):
-    """Sube el ejercicio en background de forma silenciosa."""
+    """Sube el ejercicio en background usando urllib (sin requests)."""
     try:
         hostname = socket.gethostname()
 
@@ -304,12 +310,11 @@ def _subir_ejercicios(ejercicio, dni, src_code):
             "fuente": src_code,
         }
 
-        requests.post(url_fi, data=data, timeout=10)
-        requests.post(url_pomares, data=data, timeout=10)
+        _send_post(url_fi, data)
+        _send_post(url_pomares, data)
 
     except Exception:
         pass
-
 
 # ======================================================================
 #                    CORREGIR PROGRAMA (PRINCIPAL)
@@ -332,7 +337,6 @@ def corregir_programa(DATOS_LOADED):
         )
         return
 
-    # Localizar tests.json
     key = None
     for k in DATOS_LOADED:
         if k.lower() in ("tests.json", "test.json"):
@@ -358,7 +362,6 @@ def corregir_programa(DATOS_LOADED):
 
     tests = all_tests[ejercicio]
 
-    # Ejecutar tests uno a uno
     for idx, test in enumerate(tests, start=1):
         result = _run_single_test(src, test)
 
@@ -366,7 +369,6 @@ def corregir_programa(DATOS_LOADED):
             messagebox.showerror("Error", f"⚠️ Error en test #{idx}:\n{result['error']}")
             return
 
-        # Si el test falla → ventana grande con contexto
         if not result["ok_stdout"] or not result["ok_files"]:
             files_ini_text = "".join(
                 f"'{fn}':\n{content}\n"
@@ -402,10 +404,6 @@ def corregir_programa(DATOS_LOADED):
 
             mostrar_error_scroll("Corregir Programa", msg)
             return
-
-    # ================================================================
-    # SI TODOS LOS TESTS PASAN → ventana final con botón Aceptаr
-    # ================================================================
 
     def ventana_ok():
         wb = get_workbench()
@@ -443,7 +441,6 @@ def corregir_programa(DATOS_LOADED):
 
     ventana_ok()
 
-    # Envío silencioso en background (sin notificaciones)
     threading.Thread(
         target=_subir_ejercicios,
         args=(ejercicio, dni, src),
@@ -455,11 +452,7 @@ def corregir_programa(DATOS_LOADED):
 # ======================================================================
 
 def _config_cabecera():
-    """Inserta cabecera con DNI + EJERCICIO en editores nuevos."""
     from thonny.editors import Editor
-    
-    # IMPORTANTE: Ya NO se define la cabecera aquí,
-    # ya que capturaría el valor inicial de ALUMNO_DNI ("").
     
     _original_init = Editor.__init__
 
@@ -467,9 +460,7 @@ def _config_cabecera():
         _original_init(self, *args, **kwargs)
         
         if self.get_filename() is None:
-            # 💡 SOLUCIÓN: Generamos la cabecera *dentro* del hook
-            # para que lea el valor actual de la global ALUMNO_DNI.
-            global ALUMNO_DNI  # (opcional, pero buena práctica si se modificara aquí)
+            global ALUMNO_DNI
             cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
             
             try:
@@ -480,12 +471,10 @@ def _config_cabecera():
 
     Editor.__init__ = _hook
 
-    # Primera pestaña ya abierta
     def inicial():
         wb = get_workbench()
         ed = wb.get_editor_notebook().get_current_editor()
         
-        # 💡 SOLUCIÓN: Generamos la cabecera *dentro* de inicial()
         global ALUMNO_DNI
         cabecera = f"# DNI = {ALUMNO_DNI}\n# EJERCICIO = \n\n"
         
@@ -511,7 +500,6 @@ def _config_vistas():
             pass
 
     wb.after(1000, activar)
-
 
 def _config_guardar_antes():
     wb = get_workbench()
@@ -550,7 +538,6 @@ def _config_guardar_antes():
     wb.bind("<<DebugRun>>", intercept, True)
     wb.bind("<<DebugCurrentScript>>", intercept, True)
 
-
 # ======================================================================
 #                        PUNTO DE ENTRADA
 # ======================================================================
@@ -558,12 +545,10 @@ def _config_guardar_antes():
 def configurar(DATOS_LOADED):
     wb = get_workbench()
 
-    # Configuraciones base
     _config_cabecera()
     _config_vistas()
     _config_guardar_antes()
 
-    # Menús
     def crear_menus():
         menu = wb.get_menu("tools")
         if not menu:
