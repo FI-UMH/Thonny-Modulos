@@ -369,8 +369,7 @@ def corregir_programa(DATOS_LOADED):
                 for fn, content in (test.get("filesEnd") or {}).items()
             )
             
-            msg = (
-                "El ejercicio no supera el test\n \n"
+            msg = ( "El ejercicio no supera el test\n \n"
                 "▶ CONTEXTO INICIAL\n"
                 "─────── Teclado ───────\n"
                 f"{test.get('stdin', '')}\n"
