@@ -40,8 +40,8 @@ ALUMNO_DNI = ""
 ZIP_URL = "https://github.com/FI-UMH/Thonny-Ficheros/archive/refs/heads/main.zip"
 
 _PAREN_RE = re.compile(r"\([^()]*\)")
-_HDR_DNI_RE = re.compile(r"^\s*#\s*DNI\s*=\s*(.+)", re.MULTILINE | re.IGNORECASE)
-_HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*(.+)", re.MULTILINE | re.IGNORECASE)
+_HDR_DNI_RE = re.compile(r"^\s*#\s*DNI\s*=\s*(.+)$", re.MULTILINE | re.IGNORECASE)
+_HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*(.+)$", re.MULTILINE | re.IGNORECASE)
 
 EXCLUDE = {"alumno.py", "stdin.txt", "stdout.txt"}
 
