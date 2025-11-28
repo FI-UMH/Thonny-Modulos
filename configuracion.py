@@ -135,6 +135,7 @@ def _decode_bytes(b: bytes) -> str:
     return b.decode("utf-8", errors="replace")
 
 def _extraer_datos_cabecera(src: str):
+    messagebox.showerror("src",src) #######################################################
     global ALUMNO_DNI
     dni = None
     ejercicio = None
