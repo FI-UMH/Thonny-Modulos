@@ -40,8 +40,8 @@ ALUMNO_DNI = ""
 ZIP_URL = "https://github.com/FI-UMH/Thonny-Ficheros/archive/refs/heads/main.zip"
 
 _PAREN_RE = re.compile(r"\([^()]*\)")
-_HDR_DNI_RE = re.compile(r"^\s*#\s*DNI\s*=\s*(.*)$", re.MULTILINE | re.IGNORECASE)
-_HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*(.*)$", re.MULTILINE | re.IGNORECASE)
+_HDR_DNI_RE = re.compile(r"^\s*#\s*DNI\s*=\s*([^\n\r]*)", re.MULTILINE | re.IGNORECASE)
+_HDR_EJER_RE = re.compile(r"^\s*#\s*EJERCICIO\s*=\s*([^\n\r]*)", re.MULTILINE | re.IGNORECASE)
 
 EXCLUDE = {"alumno.py", "stdin.txt", "stdout.txt"}
 
@@ -72,7 +72,7 @@ def _get_editor_text():
         if not editor:
             return None
         try:
-            return editor.get_text_widget().get("1.0", "end-1c")
+            return editor.get_text_widget().get("1.0", "end")
         except Exception:
             return editor.get_text()
     except Exception:
