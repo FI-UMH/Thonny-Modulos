@@ -368,23 +368,24 @@ def corregir_programa(DATOS_LOADED):
                 f"'{fn}':\n{content}\n"
                 for fn, content in (test.get("filesEnd") or {}).items()
             )
-
+            
             msg = (
-                "El ejercicio no supera el test\n \n"
-                "▶ CONTEXTO INICIAL\n"
-                "Teclado:\n"
-                f"{test.get('stdin', '')}\n"
+                "El ejercicio no supera el test\n"
+                "\n▶ CONTEXTO INICIAL\n"
+                f"─────── Teclado ───────\n{test.get('stdin', '')}\n".replace("\n\n","\n")
+                "─────── Ficheros ───────\n"
                 f"{files_ini_text}\n"
-                "▶ RESULTADO OBTENIDO\n"
-                "Pantalla:\n"
-                f"{result['stdout_alumno']}\n"
+                "\n▶ RESULTADO OBTENIDO\n"
+                f"─────── Pantalla ───────\n{result['stdout_alumno']}\n"
+                "─────── Ficheros ───────\n"
                 f"{files_end_text}\n"
-                "▶ RESULTADO CORRECTO\n"
-                "Pantalla:\n"
+                "\n▶ RESULTADO CORRECTO\n"
+                "─────── Pantalla ───────\n"
                 f"{test.get('stdout', '')}\n"
+                "─────── Ficheros ───────\n"
                 f"{files_exp_text}"
             ).replace("\n\n", "\n")
-
+            
             mostrar_error_scroll("Corregir Programa", msg)
             return
 
