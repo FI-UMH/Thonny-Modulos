@@ -70,6 +70,34 @@ def _get_editor_text():
     except Exception:
         return None
 
+def descargar_ficheros():
+    carpeta = filedialog.askdirectory(title="Selecciona carpeta destino")
+    if not carpeta:
+        return
+
+    try:
+        req = urllib.request.Request(
+            ZIP_URL,
+            headers={"User-Agent": "ThonnyFileLoader"},
+        )
+        data = urllib.request.urlopen(req, timeout=20).read()
+
+        with zipfile.ZipFile(io.BytesIO(data)) as z:
+            for name in z.namelist():
+                if name.endswith("/"):
+                    continue
+
+                out = name.split("/", 1)[1]
+                dest_path = os.path.join(carpeta, out)
+
+                os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+                with open(dest_path, "wb") as f:
+                    f.write(z.read(name))
+
+        messagebox.showinfo("Descargar ficheros", "Ficheros descargados correctamente.")
+    except Exception as e:
+        messagebox.showerror("Error al descargar ficheros", str(e))
+
 # ======================================================================
 #      🌟 VERSIÓN ROBUSTA DE LECTURA DE CABECERA (INFALIBLE)
 # ======================================================================
