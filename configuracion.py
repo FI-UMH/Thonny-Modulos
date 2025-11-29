@@ -134,10 +134,6 @@ def _extraer_datos_cabecera(src: str):
     return dni, ejercicio
 
 
-# ======================================================================
-#               VENTANA GRANDE CON SCROLL (ERRORES)
-# ======================================================================
-
 def _mostrar_error_scroll(titulo, mensaje):
     ventana = Toplevel()
     ventana.title(titulo)
@@ -334,7 +330,7 @@ def corregir_ejercicio_programa(codigo_alumno: str, ejercicio: str, lista_tests:
     with tempfile.TemporaryDirectory() as tmpdir:
         ruta_mod = os.path.join(tmpdir, "alumno.py")
         with open(ruta_mod, "w", encoding="utf-8") as f:
-            f.write(codigo_alumno)
+            f.write(_preprocesar_codigo(codigo_alumno))
 
         # 2. Ejecutar cada test del JSON
         for idx, test in enumerate(lista_tests, start=1):
@@ -455,7 +451,7 @@ def corregir_ejercicio_funcion(codigo_alumno: str, ejercicio: str, lista_tests: 
     with tempfile.TemporaryDirectory() as tmpdir:
         ruta_mod = os.path.join(tmpdir, "alumno.py")
         with open(ruta_mod, "w", encoding="utf-8") as f:
-            f.write(codigo_alumno)
+            f.write(_preprocesar_codigo(codigo_alumno))
 
         # Importar módulo alumno
         spec = importlib.util.spec_from_file_location("alumno_mod", ruta_mod)
