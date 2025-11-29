@@ -89,7 +89,7 @@ def descargar_ficheros():
         messagebox.showinfo("Descargar ficheros",
                             "Ficheros descargados correctamente.")
     except Exception as e:
-        messagebox.showerror("Error al descargar ficheros", str(e))
+        messagebox.showerror("Error","Error al descargar ficheros", str(e))
 
 
 # ======================================================================
@@ -430,7 +430,7 @@ def corregir_ejercicio_programa(codigo_alumno: str, ejercicio: str, lista_tests:
         texto = f"✔ Tests superados: {aciertos}/{len(lista_tests)}\n\n" + "\n\n".join(errores)
         _mostrar_error_scroll("Resultado de la corrección", texto)
     else:
-        messagebox.showerror(f"🎉 ¡Todos los tests ({aciertos}) superados correctamente!")
+        messagebox.showerror("Error",f"🎉 ¡Todos los tests ({aciertos}) superados correctamente!")
 
 
 
@@ -463,7 +463,7 @@ def corregir_ejercicio_funcion(codigo_alumno: str, ejercicio: str, lista_tests: 
         try:
             spec.loader.exec_module(alumno_mod)
         except Exception as e:
-            messagebox.showerror(f"❌ Error importando el módulo del alumno:\n{e}")
+            messagebox.showerror("Error",f"❌ Error importando el módulo del alumno:\n{e}")
             return
 
         # 2) Ejecutar todos los tests generados
@@ -592,7 +592,7 @@ def corregir_ejercicio_funcion(codigo_alumno: str, ejercicio: str, lista_tests: 
         texto = f"✔ Tests superados: {aciertos}/{len(lista_tests)}\n\n" + "\n\n".join(errores)
         _mostrar_error_scroll("Resultado de la corrección", texto)
     else:
-        messagebox.showerror(f"🎉 ¡Todos los tests ({aciertos}) superados correctamente!")
+        messagebox.showerror("Error",f"🎉 ¡Todos los tests ({aciertos}) superados correctamente!")
 
 
 def _cargar_tests_json(DATOS_LOADED):
@@ -619,7 +619,7 @@ def _cargar_tests_json(DATOS_LOADED):
         try:
             return DATOS_LOADED.tests
         except Exception as e:
-            messagebox.showerror("Error cargando tests", str(e))
+            messagebox.showerror("Error","Error cargando tests", str(e))
             return {}
 
     messagebox.showerror(
@@ -636,13 +636,13 @@ def corregir_ejercicio(DATOS_LOADED):
     dni, ejercicio = _extraer_datos_cabecera(codigo)
 
     if not ejercicio:
-        messagebox.showerror("No se encontró el código del ejercicio en la cabecera.")
+        messagebox.showerror("Error","No se encontró el código del ejercicio en la cabecera.")
         return
 
     # Cargar tests.json
     tests_dict = _cargar_tests_json(DATOS_LOADED)
     if ejercicio not in tests_dict:
-        messagebox.showerror(f"No hay tests para el ejercicio {ejercicio}.")
+        messagebox.showerror("Error",f"No hay tests para el ejercicio {ejercicio}.")
         return
 
     lista_tests = tests_dict[ejercicio]
@@ -653,7 +653,7 @@ def corregir_ejercicio(DATOS_LOADED):
     elif ejercicio.startswith("f"):
         corregir_ejercicio_funcion(codigo, ejercicio, lista_tests)
     else:
-        messagebox.showerror("El ejercicio debe empezar por 'p' o 'f'.")
+        messagebox.showerror("Error","El ejercicio debe empezar por 'p' o 'f'.")
 
 
 # ======================================================================
